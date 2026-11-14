@@ -106,14 +106,24 @@ export function bar(pct, width, fillColor) {
 const GLITCH_CHARS = ['▓', '▒', '░', '/', '\\', '<', '>'];
 
 export function glitchify(line, prob) {
-  const chars = [...line.replace(ANSI_RE, '')];
   let out = '';
-  for (const ch of chars) {
+  let i = 0;
+  while (i < line.length) {
+    if (line[i] === '\x1b') {
+      const m = /^\x1b\[[0-9;]*m/.exec(line.slice(i));
+      if (m) {
+        out += m[0];
+        i += m[0].length;
+        continue;
+      }
+    }
+    const ch = line[i];
     if (ch !== ' ' && Math.random() < prob) {
       out += F.red + GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)] + RESET;
     } else {
       out += ch;
     }
+    i++;
   }
   return out;
 }
